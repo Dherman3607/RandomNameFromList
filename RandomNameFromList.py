@@ -56,30 +56,36 @@ def chooseName(allTiers = allTiers, usedNames = usedNames):
 
 
 def selectFinalName(allTiers,tierIndex,usedNames):
-    print(tierIndex)
+
     #determine the length of the list that was passed in
     tierLength = len(allTiers[tierIndex])
     #choose a random index from 0 to tierLength
     if usedNames:
+        #make sure that we haven't exhausted all of our people
         if len(allTiers[tierIndex]) > len(usedNames[tierIndex]):
             nameIndex = random.randrange(0,tierLength,1)
             name = allTiers[tierIndex][nameIndex]
 
-
+            #if that name is in the list, do it again, until you get a name that isn't
             while name in usedNames:
                 nameIndex = random.randrange(0,tierLength,1)
                 name = allTiers[tierIndex][nameIndex]
+            #add that newly found good name to the used name list, and display it
             else:
                 usedNames[tierIndex].append(name)
                 textBox.insert(INSERT,name)
                 textBox.pack()
         else:
-            #Everyone in this group has already been used, and we need to choose another tier
+            #everyone, and i mean EVERYONE has been used.
             if sum(map(len,allTiers)) == sum(map(len,usedNames)):
                 textBox.insert(INSERT,"You appear to have run out of names.")
                 textBox.pack()
+            #Everyone in this group has already been used, and we need to choose another tier
             else:
+                textBox.insert(INSERT,"This tier is out of name, click again!")
+                textBox.pack()
                 return
+    #there are no names in the used name list yet, meaning this is the first name to be chosen.
     else:
         nameIndex = random.randrange(0,tierLength,1)
         name = allTiers[tierIndex][nameIndex]
@@ -90,10 +96,10 @@ def selectFinalName(allTiers,tierIndex,usedNames):
 with open("supporters.csv") as csvfile:
     file = csv.reader(csvfile)
     for row in file:
-        print(row[1])
+
         if row[1]=="1":
             tier1.append(row[0])
-            print(tier1)
+
         elif row[1] == "2":
             tier2.append(row[0])
         elif row[1] == "3":
@@ -105,7 +111,24 @@ with open("supporters.csv") as csvfile:
     allTiers.append(tier3)
     allTiers.append(tier4)
 
-greenbutton = Button(frame, text = "Choose a Name", fg = "brown", command = chooseName)
-greenbutton.pack( side = LEFT )
+def saveNamesToFile(usedNames = usedNames):
+    print(usedNames)
+    savedFile = filedialog.asksaveasfilename(title = 'Select file to save as', filetypes = (('csv files',"*.csv"),))
 
+    with open(savedFile,mode='w') as file:
+        file_writer = csv.writer(file,delimiter =",")
+
+        for name in usedNames:
+            if name:
+                file_writer.writerow(name)
+            else:
+                pass
+chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseName)
+chooseButton.pack( side = LEFT )
+
+saveButton = Button(frame, text = "Save Names", fg = "blue",command = saveNamesToFile)
+saveButton.pack(side = LEFT )
+
+loadButton = Button(frame, text = "load Names", fg = "blue")
+loadButton.pack(side = RIGHT )
 root.mainloop()
