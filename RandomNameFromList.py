@@ -15,6 +15,9 @@ tier3 = []
 tier4 = []
 allTiers = []
 
+usedNames = [[],[],[],[]]
+
+
 #setting up the display window
 root = Tk()
 root.geometry("500x100")
@@ -27,9 +30,8 @@ bottomframe.pack( side = BOTTOM )
 
 #the main function when you click "Choose name" this rolls a random number,
 #and will then choose a random name from that list
-def chooseName(allTiers = allTiers):
+def chooseName(allTiers = allTiers, usedNames = usedNames):
 
-    name = ""
     text = textBox.get(1.0,END)
     textLength = len(text)
 
@@ -39,29 +41,53 @@ def chooseName(allTiers = allTiers):
 
     randomNumber = random.randrange(1,100,1)
     if randomNumber >= 60:
-        selectFinalName(allTiers[3])
+        tierIndex = 3
+        selectFinalName(allTiers,tierIndex,usedNames)
     elif(randomNumber <60 and randomNumber>=30):
-        selectFinalName(allTiers[2])
-    elif(randomNumber >30 and randomNumber<= 20):
-        selectFinalName(allTiers[1])
+        tierIndex = 2
+        selectFinalName(allTiers,tierIndex,usedNames)
+    elif(randomNumber <30 and randomNumber>= 20):
+        tierIndex = 1
+        selectFinalName(allTiers,tierIndex,usedNames)
     else:
-        selectFinalName(allTiers[0])
+        tierIndex = 0
+        selectFinalName(allTiers,tierIndex,usedNames)
 
 
 
-def selectFinalName(tier):
+def selectFinalName(allTiers,tierIndex,usedNames):
+    print(tierIndex)
     #determine the length of the list that was passed in
-    tierLength = len(tier)
+    tierLength = len(allTiers[tierIndex])
     #choose a random index from 0 to tierLength
-    nameIndex = random.randrange(0,tierLength,1)
-    name = tier[nameIndex]
+    if usedNames:
+        if len(allTiers[tierIndex]) > len(usedNames[tierIndex]):
+            nameIndex = random.randrange(0,tierLength,1)
+            name = allTiers[tierIndex][nameIndex]
 
-    textBox.insert(INSERT,name)
-    textBox.pack()
 
-
+            while name in usedNames:
+                nameIndex = random.randrange(0,tierLength,1)
+                name = allTiers[tierIndex][nameIndex]
+            else:
+                usedNames[tierIndex].append(name)
+                textBox.insert(INSERT,name)
+                textBox.pack()
+        else:
+            #Everyone in this group has already been used, and we need to choose another tier
+            if sum(map(len,allTiers)) == sum(map(len,usedNames)):
+                textBox.insert(INSERT,"You appear to have run out of names.")
+                textBox.pack()
+            else:
+                return
+    else:
+        nameIndex = random.randrange(0,tierLength,1)
+        name = allTiers[tierIndex][nameIndex]
+        usedNames[tierIndex].append(name)
+        textBox.insert(INSERT,name)
+        textBox.pack()
 #process the CSV file, in the same directory
-with open("nooksList.csv") as csvfile:
+with open("supporters.csv") as csvfile:
     file = csv.reader(csvfile)
     for row in file:
         print(row[1])
