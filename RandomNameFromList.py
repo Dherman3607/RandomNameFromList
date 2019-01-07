@@ -6,6 +6,7 @@ from tkinter import *
 from tkinter import filedialog
 import random
 import csv
+import itertools
 
 #variables
 #lists for everyone that is currently in a tier, and then a list of lists for all of them.
@@ -72,9 +73,13 @@ def selectFinalName(allTiers,tierIndex,usedNames):
                 name = allTiers[tierIndex][nameIndex]
             #add that newly found good name to the used name list, and display it
             else:
-                usedNames[tierIndex].append(name)
+                if name not in usedNames[tierIndex]:
+                    
+                    usedNames[tierIndex].append(name)
                 textBox.insert(INSERT,name)
                 textBox.pack()
+                print('The names used so far are ' )
+                print(usedNames)
         else:
             #everyone, and i mean EVERYONE has been used.
             if sum(map(len,allTiers)) == sum(map(len,usedNames)):
@@ -92,6 +97,7 @@ def selectFinalName(allTiers,tierIndex,usedNames):
         usedNames[tierIndex].append(name)
         textBox.insert(INSERT,name)
         textBox.pack()
+        print('The names used so far are ' + usedNames)
 #process the CSV file, in the same directory
 with open("supporters.csv") as csvfile:
     file = csv.reader(csvfile)
@@ -112,23 +118,36 @@ with open("supporters.csv") as csvfile:
     allTiers.append(tier4)
 
 def saveNamesToFile(usedNames = usedNames):
-    print(usedNames)
+    #collapse the multi dimensional list to a single oneself.
+    finalnames = itertools.chain(*usedNames)
+    # print(finalnames)
+    # print(list(finalnames))
+    # finalnames = list(finalnames)
+    #
     savedFile = filedialog.asksaveasfilename(title = 'Select file to save as', filetypes = (('csv files',"*.csv"),))
-
+    #
+    # print(type(finalnames))
+    # print(finalnames)
     with open(savedFile,mode='w') as file:
+        print('the file is open')
         file_writer = csv.writer(file,delimiter =",")
+        # print(finalnames)
+        file_writer.writerow(list(finalnames))
 
-        for name in usedNames:
-            if name:
-                file_writer.writerow(name)
-            else:
-                pass
+def loadNamesFromFile(usedNames = usedNames):
+    loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV files",'*.csv'),))
+    with open(loadedFile) as csvFile:
+        csv_reader = csv.reader(csvFile,delimiter = ',')
+        for row in csv_reader:
+            usedNames.append(row)
+    print(usedNames)
+
 chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseName)
 chooseButton.pack( side = LEFT )
 
 saveButton = Button(frame, text = "Save Names", fg = "blue",command = saveNamesToFile)
 saveButton.pack(side = LEFT )
 
-loadButton = Button(frame, text = "load Names", fg = "blue")
+loadButton = Button(frame, text = "load Names", fg = "blue", command = loadNamesFromFile)
 loadButton.pack(side = RIGHT )
 root.mainloop()
