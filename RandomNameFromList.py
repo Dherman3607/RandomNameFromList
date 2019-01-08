@@ -74,7 +74,7 @@ def selectFinalName(allTiers,tierIndex,usedNames):
             #add that newly found good name to the used name list, and display it
             else:
                 if name not in usedNames[tierIndex]:
-                    
+
                     usedNames[tierIndex].append(name)
                 textBox.insert(INSERT,name)
                 textBox.pack()
@@ -138,8 +138,11 @@ def loadNamesFromFile(usedNames = usedNames):
     loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV files",'*.csv'),))
     with open(loadedFile) as csvFile:
         csv_reader = csv.reader(csvFile,delimiter = ',')
-        for row in csv_reader:
-            usedNames.append(row)
+        for i,person in enumerate(csv_reader):
+            #print('Currently in index: ' + str(i) + 'The name is: ' +str(person))
+            usedNames[i].append(person)
+
+
     print(usedNames)
 
 chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseName)
