@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import filedialog
 import random
 import csv
-import itertools
+#import itertools
 
 #variables
 #lists for everyone that is currently in a tier, and then a list of lists for all of them.
@@ -16,7 +16,7 @@ tier3 = []
 tier4 = []
 allTiers = []
 
-usedNames = [[],[],[],[]]
+usedNames = []
 
 
 #setting up the display window
@@ -57,47 +57,28 @@ def chooseName(allTiers = allTiers, usedNames = usedNames):
 
 
 def selectFinalName(allTiers,tierIndex,usedNames):
-
+    print(usedNames)
     #determine the length of the list that was passed in
     tierLength = len(allTiers[tierIndex])
+    print(tierLength)
     #choose a random index from 0 to tierLength
-    if usedNames:
-        #make sure that we haven't exhausted all of our people
-        if len(allTiers[tierIndex]) > len(usedNames[tierIndex]):
+    print(str(len(usedNames)))
+    if sum(map(len,allTiers)) >0:
+    #there is still a name in this tier.
+        if tierLength >0:
             nameIndex = random.randrange(0,tierLength,1)
-            name = allTiers[tierIndex][nameIndex]
-
-            #if that name is in the list, do it again, until you get a name that isn't
-            while name in usedNames:
-                nameIndex = random.randrange(0,tierLength,1)
-                name = allTiers[tierIndex][nameIndex]
-            #add that newly found good name to the used name list, and display it
-            else:
-                if name not in usedNames[tierIndex]:
-
-                    usedNames[tierIndex].append(name)
-                textBox.insert(INSERT,name)
-                textBox.pack()
-                print('The names used so far are ' )
-                print(usedNames)
+            name = allTiers[tierIndex].pop(nameIndex)
+            print(name)
+            usedNames.append(name)
+            textBox.insert(INSERT,name)
+            textBox.pack()
         else:
-            #everyone, and i mean EVERYONE has been used.
-            if sum(map(len,allTiers)) == sum(map(len,usedNames)):
-                textBox.insert(INSERT,"You appear to have run out of names.")
-                textBox.pack()
-            #Everyone in this group has already been used, and we need to choose another tier
-            else:
-                textBox.insert(INSERT,"This tier is out of name, click again!")
-                textBox.pack()
-                return
-    #there are no names in the used name list yet, meaning this is the first name to be chosen.
+            #there is no name here, roll again!
+            chooseName()
     else:
-        nameIndex = random.randrange(0,tierLength,1)
-        name = allTiers[tierIndex][nameIndex]
-        usedNames[tierIndex].append(name)
-        textBox.insert(INSERT,name)
-        textBox.pack()
-        print('The names used so far are ' + usedNames)
+        print('There are no new names here')
+
+
 #process the CSV file, in the same directory
 with open("supporters.csv") as csvfile:
     file = csv.reader(csvfile)
@@ -118,12 +99,6 @@ with open("supporters.csv") as csvfile:
     allTiers.append(tier4)
 
 def saveNamesToFile(usedNames = usedNames):
-    #collapse the multi dimensional list to a single oneself.
-    finalnames = itertools.chain(*usedNames)
-    # print(finalnames)
-    # print(list(finalnames))
-    # finalnames = list(finalnames)
-    #
     savedFile = filedialog.asksaveasfilename(title = 'Select file to save as', filetypes = (('csv files',"*.csv"),))
     #
     # print(type(finalnames))
@@ -132,16 +107,18 @@ def saveNamesToFile(usedNames = usedNames):
         print('the file is open')
         file_writer = csv.writer(file,delimiter =",")
         # print(finalnames)
-        file_writer.writerow(list(finalnames))
+        file_writer.writerow(usedNames)
 
 def loadNamesFromFile(usedNames = usedNames):
     loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV files",'*.csv'),))
     with open(loadedFile) as csvFile:
         csv_reader = csv.reader(csvFile,delimiter = ',')
-        for i,person in enumerate(csv_reader):
-            #print('Currently in index: ' + str(i) + 'The name is: ' +str(person))
-            usedNames[i].append(person)
+        for person in csv_reader:
+            if person:
 
+                print(person)
+                usedNames.append(person)
+        usedNames = usedNames[0]
 
     print(usedNames)
 
