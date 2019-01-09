@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import filedialog
 import random
 import csv
-#import itertools
+import itertools
 
 #variables
 #lists for everyone that is currently in a tier, and then a list of lists for all of them.
@@ -31,8 +31,9 @@ bottomframe.pack( side = BOTTOM )
 
 #the main function when you click "Choose name" this rolls a random number,
 #and will then choose a random name from that list
-def chooseName(allTiers = allTiers, usedNames = usedNames):
-
+def chooseName(allTiers = [], usedNames = []):
+    print('inside choose name, usedNames is :')
+    print(usedNames)
     text = textBox.get(1.0,END)
     textLength = len(text)
 
@@ -57,12 +58,9 @@ def chooseName(allTiers = allTiers, usedNames = usedNames):
 
 
 def selectFinalName(allTiers,tierIndex,usedNames):
-    print(usedNames)
     #determine the length of the list that was passed in
     tierLength = len(allTiers[tierIndex])
-    print(tierLength)
     #choose a random index from 0 to tierLength
-    print(str(len(usedNames)))
     if sum(map(len,allTiers)) >0:
     #there is still a name in this tier.
         if tierLength >0:
@@ -72,6 +70,7 @@ def selectFinalName(allTiers,tierIndex,usedNames):
             usedNames.append(name)
             textBox.insert(INSERT,name)
             textBox.pack()
+            print(usedNames)
         else:
             #there is no name here, roll again!
             chooseName()
@@ -98,36 +97,45 @@ with open("supporters.csv") as csvfile:
     allTiers.append(tier3)
     allTiers.append(tier4)
 
-def saveNamesToFile(usedNames = usedNames):
+def saveNamesToFile(usedNames):
     savedFile = filedialog.asksaveasfilename(title = 'Select file to save as', filetypes = (('csv files',"*.csv"),))
-    #
-    # print(type(finalnames))
-    # print(finalnames)
-    with open(savedFile,mode='w') as file:
-        print('the file is open')
+    with open(savedFile,mode='w',newline = '\n') as file:
         file_writer = csv.writer(file,delimiter =",")
-        # print(finalnames)
+
         file_writer.writerow(usedNames)
 
-def loadNamesFromFile(usedNames = usedNames):
-    loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV files",'*.csv'),))
-    with open(loadedFile) as csvFile:
-        csv_reader = csv.reader(csvFile,delimiter = ',')
+def loadNamesFromFile(usedNames):
+    usedNamesTemp = []
+    loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV File",'*.csv'),))
+    with open(loadedFile) as File:
+        csv_reader = csv.reader(File,delimiter = ',')
         for person in csv_reader:
             if person:
+                usedNamesTemp.append(person)
 
-                print(person)
-                usedNames.append(person)
-        usedNames = usedNames[0]
+        usedNames = usedNamesTemp
+    print('After loading the file usedNames looks like:')
+    print(usedNames[0])
 
+
+def saveFileClick():
+    saveNamesToFile(usedNames)
+
+def loadNamesClick():
+    loadNamesFromFile(usedNames)
+
+def chooseNameClick():
+
+    print('When clicking to choose a name')
+    print(allTiers)
     print(usedNames)
-
-chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseName)
+    chooseName(allTiers,usedNames)
+chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseNameClick)
 chooseButton.pack( side = LEFT )
 
-saveButton = Button(frame, text = "Save Names", fg = "blue",command = saveNamesToFile)
+saveButton = Button(frame, text = "Save Names", fg = "blue",command = saveFileClick)
 saveButton.pack(side = LEFT )
 
-loadButton = Button(frame, text = "load Names", fg = "blue", command = loadNamesFromFile)
+loadButton = Button(frame, text = "load Names", fg = "blue", command = loadNamesClick)
 loadButton.pack(side = RIGHT )
 root.mainloop()
