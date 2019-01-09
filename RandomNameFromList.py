@@ -127,7 +127,9 @@ def loadNamesClick():
 def chooseNameClick():
 
     print('When clicking to choose a name')
+    print('All Tiers of people:')
     print(allTiers)
+    print('Used names:')
     print(usedNames)
     chooseName(allTiers,usedNames)
 chooseButton = Button(bottomframe, text = "Choose a Name", fg = "blue", command = chooseNameClick)
