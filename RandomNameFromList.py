@@ -106,16 +106,19 @@ def saveNamesToFile(usedNames):
 
 def loadNamesFromFile(usedNames):
     usedNamesTemp = []
+    print(allTiers)
     loadedFile = filedialog.askopenfilename(title = 'Select File', filetypes =(( "CSV File",'*.csv'),))
     with open(loadedFile) as File:
         csv_reader = csv.reader(File,delimiter = ',')
         for person in csv_reader:
-            if person:
-                usedNamesTemp.append(person)
-
-        usedNames = usedNamesTemp
+            for p in person:
+                usedNames.append(p)
+                allTiers.pop(p)
+        #usedNames = usedNamesTemp
     print('After loading the file usedNames looks like:')
-    print(usedNames[0])
+    print(usedNames)
+
+
 
 
 def saveFileClick():
